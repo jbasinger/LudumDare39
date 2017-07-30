@@ -12,6 +12,11 @@ public class EnemyProbe : MonoBehaviour {
 	public float bulletCooldownTime = 0.5f;
 	public float freedomCooldown = 3f;
 
+	public GameObject iAmFreeBubble;
+	public GameObject isThisLifeBubble;
+	public GameObject searchingBubble;
+	public GameObject alertBubble;
+
 	private GameObject aggro;
 	private float forgetCooldown;
 	private Level level;
@@ -103,6 +108,7 @@ public class EnemyProbe : MonoBehaviour {
 			freedomCounter -= Time.deltaTime;
 			if (freedomCounter <= 0) {
 				isFree = true;
+				MakeSpeechBubble (iAmFreeBubble);
 			}
 		} else {
 			
@@ -199,30 +205,55 @@ public class EnemyProbe : MonoBehaviour {
 	}
 
 	void OnTriggerEnter2D(Collider2D other){
-//		Debug.Log ("COLLIDED with " + other.gameObject.tag);
+
+		bool aggroStartingNull = (aggro == null);
+
 		if (other.gameObject.tag == "Player") {
 			aggro = other.gameObject;
 		}
 
 		if (other.gameObject.tag == "Projectile" && other.gameObject.transform.parent.tag == "Player") {
-			aggro = other.gameObject.transform.gameObject;
+			aggro = other.gameObject.transform.parent.gameObject;
 		}
 
 		if (isFree || isBeingFreed) {
 			aggro = null;
 		}
 
+		if (aggro != null) {
+			forgetCooldown += forgetCooldownTime;
+		}
+
+		if (aggroStartingNull && !isFree && aggro != null) {
+			MakeSpeechBubble (alertBubble);
+		}
+
+	}
+
+	void MakeSpeechBubble(GameObject bubblePrefab){
+		GameObject bubble = Instantiate (bubblePrefab, this.transform.position + Vector3.up, Quaternion.identity, this.transform);
+		Destroy (bubble, 1f);
 	}
 
 	void OnTriggerExit2D(Collider2D other){
-//		Debug.Log ("Cooling down");
-		forgetCooldown += forgetCooldownTime;
+
+		if (other.gameObject.tag == "Player") {
+			forgetCooldown += forgetCooldownTime;
+			if (!isFree) {
+				MakeSpeechBubble (searchingBubble);
+			}
+		}
+
+
 	}
 
 	public void FreeBot(){
 		forgetCooldown = 0;
 		aggro = null;
 		isBeingFreed = true;
+		if (!isFree) {
+			MakeSpeechBubble (isThisLifeBubble);
+		}
 	}
 
 	public void EscapingFreedom(){
