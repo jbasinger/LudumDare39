@@ -5,12 +5,16 @@ using System.IO;
 
 public class HitPoints : MonoBehaviour {
 
-	public int maxHitpoints;
-	public int currentHitPoints;
+	public float maxHitpoints;
+	public float currentHitPoints;
+
+	public LifeBar lifeBar;
+	public RandomDrop drop;
 
 	// Use this for initialization
 	void Start () {
 		MaxHealing ();
+		UpdateLifeBar ();
 	}
 	
 	// Update is called once per frame
@@ -18,16 +22,18 @@ public class HitPoints : MonoBehaviour {
 		CheckDeath ();
 	}
 
-	public void ApplyDamage(int value){
+	public void ApplyDamage(float value){
 		currentHitPoints -= value;
 		CheckMaxHitPoints ();
 		CheckDeath ();
+		UpdateLifeBar ();
 	}
 
-	public void ApplyHealing(int value){
+	public void ApplyHealing(float value){
 		currentHitPoints += value;
 		CheckMaxHitPoints ();
 		CheckDeath ();
+		UpdateLifeBar ();
 	}
 
 	public void MaxHealing(){
@@ -36,6 +42,9 @@ public class HitPoints : MonoBehaviour {
 
 	void CheckDeath(){
 		if (currentHitPoints <= 0) {
+			if (drop != null) {
+				drop.Drop ();
+			}
 			Destroy (this.gameObject);
 		}
 	}
@@ -44,6 +53,13 @@ public class HitPoints : MonoBehaviour {
 		if (currentHitPoints > maxHitpoints) {
 			currentHitPoints = maxHitpoints;
 		}
+	}
+
+	void UpdateLifeBar(){
+		if (lifeBar == null)
+			return;
+
+		lifeBar.SetBar (currentHitPoints / maxHitpoints);
 	}
 
 }

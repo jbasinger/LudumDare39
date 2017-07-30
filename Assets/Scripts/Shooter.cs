@@ -8,13 +8,13 @@ public class Shooter : MonoBehaviour {
 	public float bulletSpeed;
 	public float randomOffset;
 
-	public void Shoot(Vector3 at, Collider2D ignoreCollider = null){
+	public void Shoot(Vector3 at, float damage, Collider2D ignoreCollider = null){
 		
 		at.z = -10;
 		at.x += randomOffset * Random.Range(-1f,1f);
 		at.y += randomOffset * Random.Range(-1f,1f);
 
-		GameObject bullet = Instantiate (bulletPrefab, this.transform.position, Quaternion.identity);
+		GameObject bullet = Instantiate (bulletPrefab, this.transform.position, Quaternion.identity, this.transform);
 		Quaternion q = Quaternion.LookRotation (transform.position - at, transform.forward);
 
 		bullet.transform.rotation = q;
@@ -26,6 +26,7 @@ public class Shooter : MonoBehaviour {
 		Rigidbody2D bulletBody = bullet.GetComponent<Rigidbody2D> ();
 		bulletBody.velocity = bulletSpeed * bullet.transform.right;
 
+		bullet.GetComponent<Bullet> ().damage = damage;
 
 		if (ignoreCollider != null) {
 			Physics2D.IgnoreCollision (bullet.GetComponent<Collider2D> (), ignoreCollider);

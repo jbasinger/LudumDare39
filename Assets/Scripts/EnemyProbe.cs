@@ -5,10 +5,12 @@ using System;
 
 public class EnemyProbe : MonoBehaviour {
 
+	public float bulletDamage = 5f;
 	public float forgetCooldownTime;
 	public float speed;
 	public float range;
 	public float bulletCooldownTime = 0.5f;
+	public float freedomCooldown = 3f;
 
 	private GameObject aggro;
 	private float forgetCooldown;
@@ -17,6 +19,9 @@ public class EnemyProbe : MonoBehaviour {
 	private Shooter shooter;
 	private Collider2D col2D;
 	private float bulletCooldown;
+	private bool isBeingFreed;
+	private bool isFree;
+	private float freedomCounter;
 
 	// Use this for initialization
 	void Start () {
@@ -30,6 +35,10 @@ public class EnemyProbe : MonoBehaviour {
 
 		shooter = myTransform.GetComponent<Shooter> ();
 		col2D = myTransform.GetComponent<Collider2D> ();
+
+		isBeingFreed = false;
+		isFree = false;
+		freedomCounter = freedomCooldown;
 
 	}
 	
@@ -48,7 +57,7 @@ public class EnemyProbe : MonoBehaviour {
 			aggro = null;
 		}
 
-		if (aggro != null) {
+		if (aggro != null && !isFree && !isBeingFreed) {
 
 			float aggroDistance = Vector3.Distance (aggro.transform.position, myTransform.position);
 			if ( aggroDistance > range) {
@@ -90,10 +99,28 @@ public class EnemyProbe : MonoBehaviour {
 
 		}
 
+		if (isBeingFreed) {
+			freedomCounter -= Time.deltaTime;
+			if (freedomCounter <= 0) {
+				isFree = true;
+			}
+		} else {
+			
+			if (freedomCounter < freedomCooldown) {
+				freedomCounter += Time.deltaTime;
+				if (freedomCounter > freedomCooldown) {
+					freedomCounter = freedomCooldown;
+				}
+			}
+
+		}
+
+
+
 	}
 
 	void Attack(){
-		shooter.Shoot (aggro.transform.position, col2D);
+		shooter.Shoot (aggro.transform.position, bulletDamage, col2D);
 		bulletCooldown += bulletCooldownTime;
 	}
 
@@ -176,10 +203,30 @@ public class EnemyProbe : MonoBehaviour {
 		if (other.gameObject.tag == "Player") {
 			aggro = other.gameObject;
 		}
+
+		if (other.gameObject.tag == "Projectile" && other.gameObject.transform.parent.tag == "Player") {
+			aggro = other.gameObject.transform.gameObject;
+		}
+
+		if (isFree || isBeingFreed) {
+			aggro = null;
+		}
+
 	}
 
 	void OnTriggerExit2D(Collider2D other){
 //		Debug.Log ("Cooling down");
 		forgetCooldown += forgetCooldownTime;
 	}
+
+	public void FreeBot(){
+		forgetCooldown = 0;
+		aggro = null;
+		isBeingFreed = true;
+	}
+
+	public void EscapingFreedom(){
+		isBeingFreed = false;
+	}
+
 }

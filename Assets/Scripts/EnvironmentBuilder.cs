@@ -4,6 +4,7 @@ using UnityEngine;
 using System;
 using Random = UnityEngine.Random;
 using System.Xml.Linq;
+using UnityEngine.UI;
 
 public enum Direction{
 	UP,
@@ -236,24 +237,45 @@ public class EnvironmentBuilder : MonoBehaviour {
 
 	public int minNumberOfExits;
 	public int maxNumberOfExits;
-//
-//	public GameObject[] roomGenerators;
-//	public HallwayGenerator hallwayGenerator;
 
+	public int maxBreakablesPerRoom;
+
+	public GameObject playerPrefab;
 	public GameObject wallPrefab;
 	public GameObject floorPrefab;
-	public GameObject player;
 	public GameObject enemy;
 	public GameObject stairsDown;
+	public GameObject breakablePrefab;
+
+	public Text winLoseLabel;
+	public Image playerLifeBar;
 
 	public static Level level;
 
+	private GameObject currentStairs;
+	private GameObject player;
+
 	public void NextLevel(){
-		BuildEnvironment(level.levelNumber + 1);
+		BuildEnvironment(level.levelNumber - 1);
 	}
 
 	// Use this for initialization
 	void Start () {
+		BuildEnvironment ();
+	}
+
+	public void NewGame(){
+
+		ClearEnvironment ();
+
+		if (currentStairs != null) {
+			Destroy (currentStairs);
+		}
+
+		if (player != null) {
+			player.GetComponent<HitPoints> ().MaxHealing ();
+		}
+
 		BuildEnvironment ();
 	}
 
@@ -265,9 +287,17 @@ public class EnvironmentBuilder : MonoBehaviour {
 
 	}
 
-	public void BuildEnvironment(int levelNumber = 1){
+	public void BuildEnvironment(int levelNumber = 5){
+
+		winLoseLabel.gameObject.SetActive (false);
 
 		ClearEnvironment ();
+
+		if (levelNumber == 0) {
+			winLoseLabel.gameObject.SetActive (true);
+			winLoseLabel.text = "YOU WIN!";
+			return;
+		}
 
 		level = new Level (levelWidth, levelHeight);
 		level.levelNumber = levelNumber;
@@ -278,6 +308,7 @@ public class EnvironmentBuilder : MonoBehaviour {
 		BuildBackground ();
 		BuildRooms ();
 		BuildHallways ();
+		PlaceBreakables ();
 		PlaceStairsDown ();
 		PlacePlayer ();
 
@@ -378,6 +409,20 @@ public class EnvironmentBuilder : MonoBehaviour {
 
 	}
 
+	void PlaceBreakables(){
+
+		foreach (Room r in level.rooms) {
+
+			int numBreakables = Random.Range (0, maxBreakablesPerRoom);
+			for (int i = 0; i < numBreakables; i++) {
+				Tile t = r.RandomTile ();
+				Instantiate (breakablePrefab, new Vector3 (t.x, t.y), Quaternion.identity, t.gameObject.transform);
+			}
+
+		}
+
+	}
+
 	void PlaceStairsDown(){
 		
 		Room exitRoom = level.RandomRoom ();
@@ -389,12 +434,27 @@ public class EnvironmentBuilder : MonoBehaviour {
 		StairsDown stairs = stairsTile.gameObject.GetComponent<StairsDown> ();
 		stairs.levelBuilder = this.gameObject;
 
+		currentStairs = stairs.gameObject;
+
 	}
 
 	void PlacePlayer(){
 		Room startingRoom = level.RandomRoom ();
-		Tile startingTile = startingRoom.RandomTile ();
-		player.transform.position = new Vector3 (startingTile.x, startingTile.y);
+		Tile startingTile;
+
+		do {
+			startingTile = startingRoom.RandomTile ();
+		} while(!startingTile.isPassable);
+
+		if (player == null) {
+			player = Instantiate (playerPrefab, new Vector3 (startingTile.x, startingTile.y), Quaternion.identity);
+			LifeBar lb = player.GetComponent<LifeBar> ();
+			lb.bar = playerLifeBar;
+
+			Camera.main.GetComponent<CameraFollow> ().target = player;
+		} else {
+			player.transform.position = new Vector3 (startingTile.x, startingTile.y);
+		}
 	}
 
 	void Dig(Room hallway, int x, int y, Direction dir){
@@ -445,6 +505,14 @@ public class EnvironmentBuilder : MonoBehaviour {
 		t.room = r;
 		level.tiles [x, y] = t;
 		r.tiles.Add (t);
+	}
+
+	void Update(){
+		if (player == null) {
+			winLoseLabel.gameObject.SetActive (true);
+			winLoseLabel.text = "YOU LOSE!";
+			winLoseLabel.color = Color.red;
+		}
 	}
 
 }
