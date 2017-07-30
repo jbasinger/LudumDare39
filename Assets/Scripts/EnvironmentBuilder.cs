@@ -250,11 +250,17 @@ public class EnvironmentBuilder : MonoBehaviour {
 	public Text winLoseLabel;
 	public Image playerLifeBar;
 	public Text levelLabel;
+	public Image playerAliveBar;
+	public Text robotsKilledLabel;
+	public Text robotsSavedLabel;
 
 	public static Level level;
 
 	private GameObject currentStairs;
-	private GameObject player;
+	public static GameObject player;
+
+	public static int enemiesKilled;
+	public static int enemiesSaved;
 
 	public void NextLevel(){
 		BuildEnvironment(level.levelNumber - 1);
@@ -275,7 +281,12 @@ public class EnvironmentBuilder : MonoBehaviour {
 
 		if (player != null) {
 			player.GetComponent<HitPoints> ().MaxHealing ();
+			player.GetComponent<LifeDrain> ().currentAlive = 0;
+			player.GetComponent<LifeDrain> ().lifePerSecond = 0.5f;
 		}
+
+		enemiesSaved = 0;
+		enemiesKilled = 0;
 
 		BuildEnvironment ();
 	}
@@ -298,6 +309,13 @@ public class EnvironmentBuilder : MonoBehaviour {
 			winLoseLabel.gameObject.SetActive (true);
 			winLoseLabel.text = "YOU WIN!";
 			levelLabel.text = "LEVEL: -";
+			robotsSavedLabel.text = "YOU FREED: " + enemiesSaved + " ROBOT BRETHREN";
+			robotsKilledLabel.text = "YOU KILLED: " + enemiesKilled + " ROBOT BRETHREN";
+
+			if (player) {
+				player.GetComponent<LifeDrain> ().lifePerSecond = 0;
+			}
+
 			return;
 		}
 
@@ -452,7 +470,8 @@ public class EnvironmentBuilder : MonoBehaviour {
 			player = Instantiate (playerPrefab, new Vector3 (startingTile.x, startingTile.y), Quaternion.identity);
 			LifeBar lb = player.GetComponent<LifeBar> ();
 			lb.bar = playerLifeBar;
-
+			LifeDrain ld = player.GetComponent<LifeDrain> ();
+			ld.aliveBar = playerAliveBar;
 			Camera.main.GetComponent<CameraFollow> ().target = player;
 		} else {
 			player.transform.position = new Vector3 (startingTile.x, startingTile.y);
@@ -514,6 +533,8 @@ public class EnvironmentBuilder : MonoBehaviour {
 			winLoseLabel.gameObject.SetActive (true);
 			winLoseLabel.text = "YOU LOSE!";
 			winLoseLabel.color = Color.red;
+			robotsSavedLabel.text = "YOU FREED: " + enemiesSaved + " ROBOT BRETHREN";
+			robotsKilledLabel.text = "YOU KILLED: " + enemiesKilled + " ROBOT BRETHREN";
 		}
 		levelLabel.text = "LEVEL: " + level.levelNumber;
 	}

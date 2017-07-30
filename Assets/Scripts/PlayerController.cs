@@ -20,6 +20,7 @@ public class PlayerController : MonoBehaviour {
 	private float bulletCooldown;
 	private bool freeingBot;
 	private GameObject currentCircle;
+	private LifeDrain lifeDrain;
 
 	// Use this for initialization
 	void Start () {
@@ -27,6 +28,7 @@ public class PlayerController : MonoBehaviour {
 		col2D = GetComponent<Collider2D> ();
 		shooter = GetComponent<Shooter> ();
 		hp = GetComponent<HitPoints> ();
+		lifeDrain = GetComponent<LifeDrain> ();
 		freeingBot = false;
 	}
 	
@@ -63,6 +65,23 @@ public class PlayerController : MonoBehaviour {
 			bulletCooldown -= Time.deltaTime;
 		}
 
+	}
+
+	public void KilledEnemy(){
+		lifeDrain.currentAlive -= 2;
+		if (lifeDrain.currentAlive <= 0) {
+			lifeDrain.currentAlive = 0;
+		}
+		EnvironmentBuilder.enemiesKilled++;
+	}
+
+	public void FreedEnemy(){
+		lifeDrain.currentAlive += 1;
+		Debug.Log ("FREED ENEMY!");
+		if (lifeDrain.currentAlive >= lifeDrain.maxAlive) {
+			lifeDrain.currentAlive = lifeDrain.maxAlive;
+		}
+		EnvironmentBuilder.enemiesSaved++;
 	}
 
 }

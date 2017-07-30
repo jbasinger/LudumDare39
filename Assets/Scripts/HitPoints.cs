@@ -45,6 +45,13 @@ public class HitPoints : MonoBehaviour {
 			if (drop != null) {
 				drop.Drop ();
 			}
+
+			//Dirty hax
+			if (this.tag == "Enemy" && EnvironmentBuilder.player != null && GetComponent<Shooter>() != null) {
+				PlayerController p = EnvironmentBuilder.player.GetComponent<PlayerController> ();
+				p.KilledEnemy ();
+			}
+
 			Destroy (this.gameObject);
 		}
 	}

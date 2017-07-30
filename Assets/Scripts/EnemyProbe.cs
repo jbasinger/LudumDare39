@@ -32,6 +32,7 @@ public class EnemyProbe : MonoBehaviour {
 	void Start () {
 
 		level = EnvironmentBuilder.level;
+
 		if (transform.parent != null) {
 			myTransform = transform.parent;
 		} else {
@@ -109,6 +110,10 @@ public class EnemyProbe : MonoBehaviour {
 			if (freedomCounter <= 0) {
 				isFree = true;
 				MakeSpeechBubble (iAmFreeBubble);
+				if (EnvironmentBuilder.player != null) {
+					PlayerController p = EnvironmentBuilder.player.GetComponent<PlayerController> ();
+					p.FreedEnemy ();
+				}
 			}
 		} else {
 			
@@ -226,6 +231,7 @@ public class EnemyProbe : MonoBehaviour {
 
 		if (aggroStartingNull && !isFree && aggro != null) {
 			MakeSpeechBubble (alertBubble);
+
 		}
 
 	}
