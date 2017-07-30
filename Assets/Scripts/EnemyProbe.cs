@@ -68,8 +68,6 @@ public class EnemyProbe : MonoBehaviour {
 			float aggroDistance = Vector3.Distance (aggro.transform.position, myTransform.position);
 			if ( aggroDistance > range) {
 
-//				Physics2D.Raycast(myTransform.transform,
-//				Ray2D ray = new Ray2D(myTransform.position,aggro.transform.position-myTransform.position);
 				Debug.DrawRay (myTransform.position, aggro.transform.position - myTransform.position);
 
 				RaycastHit2D hit = Physics2D.Raycast (myTransform.position, aggro.transform.position - myTransform.position, aggroDistance + range);
@@ -109,6 +107,7 @@ public class EnemyProbe : MonoBehaviour {
 			freedomCounter -= Time.deltaTime;
 			if (freedomCounter <= 0) {
 				isFree = true;
+				isBeingFreed = false;
 				MakeSpeechBubble (iAmFreeBubble);
 				if (EnvironmentBuilder.player != null) {
 					PlayerController p = EnvironmentBuilder.player.GetComponent<PlayerController> ();
@@ -187,12 +186,6 @@ public class EnemyProbe : MonoBehaviour {
 				dist += 1000;
 			}
 
-//			foreach (Tile prev in previousTiles) {
-//				if (t == prev) {
-//					dist += 1000;
-//				}
-//			}
-
 			if (dist < bestDistance) {
 				bestTile = t;
 				bestDistance = dist;
@@ -200,10 +193,7 @@ public class EnemyProbe : MonoBehaviour {
 		}
 
 		if (bestTile != null) {
-//			Debug.Log (String.Format ("MY tile x:{0} y:{1}", me.x, me.y));
-//			Debug.Log (String.Format ("Heading to best tile x:{0} y:{1}", bestTile.x, bestTile.y));
 			Debug.DrawLine (myTransform.position, bestTile.GetVector3 (),Color.red);
-//			previousTiles.Enqueue (bestTile);
 			myTransform.position = Vector3.MoveTowards (myTransform.position, bestTile.GetVector3 (), speed * Time.deltaTime);
 		}
 
