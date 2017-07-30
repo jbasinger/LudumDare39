@@ -242,7 +242,7 @@ public class EnvironmentBuilder : MonoBehaviour {
 
 	public GameObject playerPrefab;
 	public GameObject wallPrefab;
-	public GameObject floorPrefab;
+	public GameObject[] floorPrefabs;
 	public GameObject enemy;
 	public GameObject stairsDown;
 	public GameObject breakablePrefab;
@@ -522,7 +522,7 @@ public class EnvironmentBuilder : MonoBehaviour {
 		level.BackgroundRoom.tiles.Remove (t);
 		t.isPassable = true;
 		Destroy (t.gameObject);
-		t.gameObject = Instantiate (floorPrefab, new Vector3 (x, y), Quaternion.identity, r.gameObject.transform);
+		t.gameObject = Instantiate (floorPrefabs[Random.Range(0,floorPrefabs.Length)], new Vector3 (x, y), Quaternion.identity, r.gameObject.transform);
 		t.room = r;
 		level.tiles [x, y] = t;
 		r.tiles.Add (t);
