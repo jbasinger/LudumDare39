@@ -249,6 +249,7 @@ public class EnvironmentBuilder : MonoBehaviour {
 
 	public Text winLoseLabel;
 	public Image playerLifeBar;
+	public Text levelLabel;
 
 	public static Level level;
 
@@ -296,6 +297,7 @@ public class EnvironmentBuilder : MonoBehaviour {
 		if (levelNumber == 0) {
 			winLoseLabel.gameObject.SetActive (true);
 			winLoseLabel.text = "YOU WIN!";
+			levelLabel.text = "LEVEL: -";
 			return;
 		}
 
@@ -513,6 +515,7 @@ public class EnvironmentBuilder : MonoBehaviour {
 			winLoseLabel.text = "YOU LOSE!";
 			winLoseLabel.color = Color.red;
 		}
+		levelLabel.text = "LEVEL: " + level.levelNumber;
 	}
 
 }
