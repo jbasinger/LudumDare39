@@ -5,6 +5,28 @@ using System;
 using Random = UnityEngine.Random;
 using System.Xml.Linq;
 using UnityEngine.UI;
+using NUnit.Framework.Internal.Filters;
+using System.Security.Cryptography;
+
+[Flags]
+public enum WallSurround{
+	None = 0,
+	Top = 1,
+	Bottom = 2,
+	TopAndBottom = 3,
+	Left = 4,
+	TopAndLeft = 5,
+	BottomAndLeft = 6,
+	TopAndBottomAndLeft = 7,
+	Right = 8,
+	TopAndRight = 9,
+	BottomAndRight = 10,
+	TopAndBottomAndRight = 11,
+	LeftAndRight = 12,
+	TopAndLeftAndRight = 13,
+	BottomAndLeftAndRight = 14,
+	TopAndBottomAndLeftAndRight = 15
+}
 
 public enum Direction{
 	UP,
@@ -242,10 +264,11 @@ public class EnvironmentBuilder : MonoBehaviour {
 
 	public GameObject playerPrefab;
 	public GameObject wallPrefab;
+	public GameObject mainFloorPrefab;
 	public GameObject[] floorPrefabs;
 	public GameObject enemy;
 	public GameObject stairsDown;
-	public GameObject breakablePrefab;
+	public GameObject[] breakablePrefabs;
 
 	public Text winLoseLabel;
 	public Image playerLifeBar;
@@ -328,6 +351,7 @@ public class EnvironmentBuilder : MonoBehaviour {
 		BuildBackground ();
 		BuildRooms ();
 		BuildHallways ();
+//		FixWalls ();
 		PlaceBreakables ();
 		PlaceStairsDown ();
 		PlacePlayer ();
@@ -429,6 +453,55 @@ public class EnvironmentBuilder : MonoBehaviour {
 
 	}
 
+	void FixWalls(){
+		foreach (Tile t in level.BackgroundRoom.tiles) {
+
+			WallSurround wall = WallSurround.None;
+
+			Tile up = level.TileAtLocation    (t.x, t.y + 1);
+			Tile down = level.TileAtLocation  (t.x, t.y - 1);
+			Tile left = level.TileAtLocation  (t.x - 1, t.y);
+			Tile right = level.TileAtLocation (t.x + 1, t.y);
+
+			if (!up.isPassable || up == null) {
+				wall = wall | WallSurround.Top;
+			}
+
+			if (!down.isPassable || down == null) {
+				wall = wall | WallSurround.Bottom;
+			}
+
+			if (!left.isPassable || left == null) {
+				wall = wall | WallSurround.Left;
+			}
+
+			if (!right.isPassable || right == null) {
+				wall = wall | WallSurround.Right;
+			}
+
+//			switch (wall) {
+//			case WallSurround.None:
+//				break;
+//			case WallSurround.Top:
+//				break;
+//			case WallSurround.Bottom:
+//				break;
+//			case WallSurround.TopAndBottom:
+//				break;
+//			case WallSurround.Left:
+//				break;
+//			case WallSurround.Right:
+//				break;
+//			case WallSurround.LeftAndRight:
+//				break;
+//			case WallSurround.Surrounded:
+//				break;
+//			}
+
+
+		}
+	}
+
 	void PlaceBreakables(){
 
 		foreach (Room r in level.rooms) {
@@ -436,7 +509,10 @@ public class EnvironmentBuilder : MonoBehaviour {
 			int numBreakables = Random.Range (0, maxBreakablesPerRoom);
 			for (int i = 0; i < numBreakables; i++) {
 				Tile t = r.RandomTile ();
-				Instantiate (breakablePrefab, new Vector3 (t.x, t.y), Quaternion.identity, t.gameObject.transform);
+				int breakableIndex = Random.Range(0,breakablePrefabs.Length);
+				Debug.Log ("Breakable index: " + breakableIndex);
+				GameObject thing = breakablePrefabs [breakableIndex];
+				Instantiate (thing, new Vector3 (t.x, t.y), Quaternion.identity, t.gameObject.transform);
 			}
 
 		}
@@ -522,7 +598,13 @@ public class EnvironmentBuilder : MonoBehaviour {
 		level.BackgroundRoom.tiles.Remove (t);
 		t.isPassable = true;
 		Destroy (t.gameObject);
-		t.gameObject = Instantiate (floorPrefabs[Random.Range(0,floorPrefabs.Length)], new Vector3 (x, y), Quaternion.identity, r.gameObject.transform);
+
+		if (Random.value <= 0.1) {
+			t.gameObject = Instantiate (floorPrefabs[Random.Range(0,floorPrefabs.Length)], new Vector3 (x, y), Quaternion.identity, r.gameObject.transform);
+		} else {
+			t.gameObject = Instantiate (mainFloorPrefab, new Vector3 (x, y), Quaternion.identity, r.gameObject.transform);
+		}
+
 		t.room = r;
 		level.tiles [x, y] = t;
 		r.tiles.Add (t);

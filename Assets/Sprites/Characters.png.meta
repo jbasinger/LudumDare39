@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: c661aca84566f4a7f88eb9fd6256be68
-timeCreated: 1501438147
+timeCreated: 1501460857
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
@@ -16,6 +16,9 @@ TextureImporter:
     21300018: Characters_9
     21300020: Characters_10
     21300022: Characters_11
+    21300024: Characters_12
+    21300026: Characters_13
+    21300028: Characters_14
   serializedVersion: 4
   mipmaps:
     mipMapMode: 0
@@ -39,7 +42,7 @@ TextureImporter:
   textureFormat: 1
   maxTextureSize: 2048
   textureSettings:
-    filterMode: 1
+    filterMode: 0
     aniso: -1
     mipBias: -1
     wrapMode: 1
@@ -258,6 +261,45 @@ TextureImporter:
         height: 52
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Characters_12
+      rect:
+        serializedVersion: 2
+        x: 1039
+        y: 1165
+        width: 97
+        height: 107
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Characters_13
+      rect:
+        serializedVersion: 2
+        x: 1167
+        y: 1178
+        width: 102
+        height: 73
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Characters_14
+      rect:
+        serializedVersion: 2
+        x: 19
+        y: 1032
+        width: 82
+        height: 116
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       tessellationDetail: 0
